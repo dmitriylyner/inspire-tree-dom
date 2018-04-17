@@ -136,7 +136,7 @@ export default class ListItem extends Component {
 
             // Validate with a custom recursor because a return of "false"
             // should mean "do not descend" rather than "stop iterating"
-            const recursor = function(obj, iteratee) {
+            const recursor = function (obj, iteratee) {
                 if (InspireTree.isTreeNodes(obj)) {
                     _.each(obj, (n) => {
                         recursor(n, iteratee);
@@ -273,11 +273,15 @@ export default class ListItem extends Component {
         const dir = this.getTargetDirection(event, event.target);
 
         let sourceTree;
+        const files = _.get(event, 'dataTransfer.files');
         if (treeId === this.props.dom._tree.id) {
             sourceTree = this.props.dom._tree;
         }
-        else {
+        else if (!_.isEmpty(treeId)) {
             sourceTree = document.querySelector('[data-uid="' + treeId + '"]').inspireTree;
+        } else if (!_.isEmpty(files)) {
+            this.props.dom._tree.emit('node.fileupload', event, targetNode);
+            return;
         }
 
         const node = sourceTree.node(nodeId);
@@ -379,10 +383,10 @@ export default class ListItem extends Component {
         const li = (<li
             {...this.getAttributes()}
             ref={elem => this.node = this.props.node.itree.ref = elem}>
-            { this.renderEditToolbar() }
+            {this.renderEditToolbar()}
             <div className='title-wrap'>
-                { this.renderToggle() }
-                { this.renderCheckbox() }
+                {this.renderToggle()}
+                {this.renderCheckbox()}
                 <NodeAnchor
                     dom={this.props.dom}
                     editing={node.editing()}
@@ -392,7 +396,7 @@ export default class ListItem extends Component {
                     text={node.text} />
             </div>
             <div className='wholerow' />
-            { this.renderChildren() }
+            {this.renderChildren()}
         </li>);
 
         // Clear dirty bool only after everything has been generated (and states set)
